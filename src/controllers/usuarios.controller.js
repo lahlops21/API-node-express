@@ -42,6 +42,7 @@ const buscarUsuarioPorId = (req, res, next) => {
     }
 };
 
+
 //POST /usuarios
 
 const criarUsuario = (req, res, next) => {
@@ -92,6 +93,46 @@ const novoUsuario = UsuariosData.inserir({
         next(error);
         }
 };
+
+
+// PUT 
+
+const atualizarUsuario = (req, res, next) => {
+
+    try {
+        const id = Number(req.params.id);
+        const usuario = UsuariosData.buscarPorId(id);
+        const {
+        nome,
+        email,
+        senha,
+        dataNascimento,
+        cpf
+           } = req.body;
+
+        const usuarioAtualizado = UsuariosData.inserir({
+        nome,
+        email,
+        senha,
+        dataNascimento,
+        cpf
+        
+    });
+
+    if (!usuario) {
+        const erro = new Error('Usuário não encontrado');
+        erro.status = 404;
+    return next(erro);
+    }
+    return res.status(200).json(removerSenha(usuarioAtualizado));
+    } catch (err) {
+         next(error);
+    }
+
+}
+
+
+
 
 module.exports = {
  listarUsuarios,
