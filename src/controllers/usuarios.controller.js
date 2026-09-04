@@ -95,47 +95,90 @@ const novoUsuario = UsuariosData.inserir({
 };
 
 
-// PUT 
-
+// PUT /usuarios/:id
 const atualizarUsuario = (req, res, next) => {
-
     try {
         const id = Number(req.params.id);
-        const usuario = UsuariosData.buscarPorId(id);
-        const {
-        nome,
-        email,
-        senha,
-        dataNascimento,
-        cpf
-           } = req.body;
+        const { nome, email, senha, dataNascimento, cpf } = req.body;
 
-        const usuarioAtualizado = UsuariosData.inserir({
-        nome,
-        email,
-        senha,
-        dataNascimento,
-        cpf
-        
-    });
+        // 1. Validar se o usuário existe (404)
+        const usuarioExistente = UsuariosData.buscarPorId(id);
+        if (!usuarioExistente) {
+            const erro = new Error('Usuário não encontrado');
+            erro.status = 404;
+            return next(erro);
+        }
 
-    if (!usuario) {
-        const erro = new Error('Usuário não encontrado');
-        erro.status = 404;
-    return next(erro);
+        // 2. Validar se todos os campos foram fornecidos (400)
+        if (!nome || !email || !senha || !dataNascimento || !cpf) {
+            const erro = new Error('Todos os campos são obrigatórios');
+            erro.status = 400;
+            return next(erro);
+        }
+
+        // 3. Validar conflito de E-mail com OUTRO usuário (409)
+        const usuarioComMesmoEmail = UsuariosData.buscarPorEmail(email);
+        if (usuarioComMesmoEmail && usuarioComMesmoEmail.id !== id) {
+            const erro = new Error('Já existe outro usuário com este e-mail');
+            erro.status = 409;
+            return next(erro);
+        }
+
+        // 4. Validar conflito de CPF com OUTRO usuário (409)
+        const usuarioComMesmoCpf = UsuariosData.buscarPorCpf(cpf);
+        if (usuarioComMesmoCpf && usuarioComMesmoCpf.id !== id) {
+            const erro = new Error('Já existe outro usuário com este CPF');
+            erro.status = 409;
+            return next(erro);
+        }
+
+        // 5. Atualizar na persistência
+        const usuarioAtualizado = UsuariosData.atualizar(id, {
+            nome,
+            email,
+            senha,
+            dataNascimento,
+            cpf
+        });
+
+        // 6. Retorna o usuário sem a senha (200)
+        return res.status(200).json(removerSenha(usuarioAtualizado));
+
+    } catch (error) {
+        next(error); // Trata o erro 'error' 
     }
-    return res.status(200).json(removerSenha(usuarioAtualizado));
-    } catch (err) {
-         next(error);
+
+    // DELETE /usuarios/:id
+const excluirUsuario = (req, res, next) => {
+    try {
+        const id = Number(req.params.id);
+
+        // 1. Verifica se o usuário existe (404)
+        const usuarioExistente = UsuariosData.buscarPorId(id);
+        if (!usuarioExistente) {
+            const erro = new Error('Usuário não encontrado');
+            erro.status = 404;
+            return next(erro);
+        }
+
+        // 2. Executa a exclusão 
+        UsuariosData.excluir(id);
+
+        // 3. Retorna resposta de sucesso 200
+        return res.status(200).json({ message: 'Usuário excluído com sucesso' });
+
+    } catch (error) {
+        next(error);
     }
-
-}
-
-
+};
+    
+};
 
 
 module.exports = {
- listarUsuarios,
- buscarUsuarioPorId,
- criarUsuario
+    listarUsuarios,
+    buscarUsuarioPorId,
+    criarUsuario,
+    atualizarUsuario,
+    excluirUsuario
 };

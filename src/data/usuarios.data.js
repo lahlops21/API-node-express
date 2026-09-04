@@ -52,5 +52,34 @@ class UsuariosData {
  this.usuarios.push(novoUsuario);
  return novoUsuario;
  }
+
+atualizar(id, dadosUsuario) {
+  const index = this.usuarios.findIndex(usuario => usuario.id === id);
+  if (index === -1) return null;
+
+  // Garantindo que o ID original não seja alterado
+  const usuarioAtualizado = {
+    ...this.usuarios[index],
+    ...dadosUsuario,
+    id: id 
+  };
+
+  this.usuarios[index] = usuarioAtualizado;
+  return usuarioAtualizado;
 }
+
+excluir(id) {
+  const index = this.usuarios.findIndex(usuario => usuario.id === id);
+  
+  // Se não encontrou o usuário, retorna false
+  if (index === -1) return false;
+
+  // Remove o usuário da array
+  this.usuarios.splice(index, 1);
+  return true;
+}
+
+}
+
+
 module.exports = new UsuariosData();
