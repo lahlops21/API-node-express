@@ -3,7 +3,7 @@ class UsuariosData {
  this.usuarios = [
  {
  id: 1,
- nome: 'Lais Lopes ',
+ nome: 'Lais Lopes',
  email: 'lais@email.com',
  senha: '123456',
  dataNascimento: '1995-03-12',

@@ -148,7 +148,11 @@ const atualizarUsuario = (req, res, next) => {
         next(error); // Trata o erro 'error' 
     }
 
-    // DELETE /usuarios/:id
+   
+    
+};
+
+// DELETE /usuarios/:id
 const excluirUsuario = (req, res, next) => {
     try {
         const id = Number(req.params.id);
@@ -170,8 +174,6 @@ const excluirUsuario = (req, res, next) => {
     } catch (error) {
         next(error);
     }
-};
-    
 };
 
 
